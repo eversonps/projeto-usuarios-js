@@ -11,30 +11,40 @@ class UserController{
             e.preventDefault()
             let user = this.getValues()
 
-            this.getPhoto((content)=>{
+            this.getPhoto().then(content =>{
                 user.photo = content
                 this.addLine(user)
+            }, e => {
+                console.error("erro")
             })
         })
     }
 
-    getPhoto(callback){
-        let fileReader = new FileReader();
+    getPhoto(){
+        return new Promise((resolve, reject)=>{
+            let fileReader = new FileReader();
 
-        let imagem = [...this._formEl.elements].filter(item=>{
-            if (item.name === "photo"){
-                return item
+            let imagem = [...this._formEl.elements].filter(item=>{
+                if (item.name === "photo"){
+                    return item
+                }
+            })
+
+            console.log(imagem)
+
+            let file = imagem[0].files[0]
+            console.log(file)
+    
+            fileReader.onload = ()=>{
+                resolve(fileReader.result)
             }
+    
+            fileReader.onerror = (e)=>{
+                reject(e)
+            }
+            
+            fileReader.readAsDataURL(file)
         })
-
-        let file = imagem[0].files[0]
-        console.log(file)
-
-        fileReader.onload = ()=>{
-            callback(fileReader.result)
-        }
-
-        fileReader.readAsDataURL(file)
     }
 
     getValues(){
