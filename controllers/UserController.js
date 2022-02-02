@@ -7,12 +7,16 @@ class UserController{
     }
 
     onSubmit(){
+        let btn = document.querySelector("[type=submit]")
         this._formEl.addEventListener("submit", e=>{
+            btn.disabled = true
             e.preventDefault()
             let user = this.getValues()
             this.getPhoto().then(content =>{
-                user._photo = content
+                user.photo = content
                 this.addLine(user)
+                this._formEl.reset()
+                btn.disabled = false
             }, e => {
                 console.error("erro")
             })
@@ -73,11 +77,11 @@ class UserController{
     addLine(dataUser){
         this._table.innerHTML += `
         <tr>
-            <td><img src="${dataUser._photo}" alt="User Image" class="img-circle img-sm"></td>
-            <td>${dataUser._name}</td>
-            <td>${dataUser._email}</td>
-            <td>${(dataUser._admin) ? "Sim" : "Não"}</td>
-            <td>${dataUser._birth}</td>
+            <td><img src="${dataUser.photo}" alt="User Image" class="img-circle img-sm"></td>
+            <td>${dataUser.name}</td>
+            <td>${dataUser.email}</td>
+            <td>${(dataUser.admin) ? "Sim" : "Não"}</td>
+            <td>${Utils.dateFormat(dataUser.date)}</td>
             <td>
                 <button type="button" class="btn btn-primary btn-xs btn-flat">Editar</button>
                 <button type="button" class="btn btn-danger btn-xs btn-flat">Excluir</button>

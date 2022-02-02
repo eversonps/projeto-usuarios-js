@@ -8,5 +8,46 @@ class User{
         this._password = password
         this._photo = photo
         this._admin = admin
+        this._date = new Date()
+    }
+
+    get date(){
+        return this._date
+    }
+
+    get name(){
+        return this._name
+    }
+
+    get gender(){
+        return this._gender
+    }
+
+    get birth(){
+        return this._birth
+    }
+
+    get country(){
+        return this._country
+    }
+
+    get email(){
+        return this._email
+    }
+
+    get password(){
+        return this._password
+    }
+
+    set photo(photo){
+        this._photo = photo
+    }
+
+    get photo(){
+        return this._photo
+    }
+
+    get admin(){
+        return this._admin
     }
 }
