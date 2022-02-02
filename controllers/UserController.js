@@ -10,9 +10,8 @@ class UserController{
         this._formEl.addEventListener("submit", e=>{
             e.preventDefault()
             let user = this.getValues()
-
             this.getPhoto().then(content =>{
-                user.photo = content
+                user._photo = content
                 this.addLine(user)
             }, e => {
                 console.error("erro")
@@ -30,10 +29,7 @@ class UserController{
                 }
             })
 
-            console.log(imagem)
-
             let file = imagem[0].files[0]
-            console.log(file)
     
             fileReader.onload = ()=>{
                 resolve(fileReader.result)
@@ -43,7 +39,11 @@ class UserController{
                 reject(e)
             }
             
-            fileReader.readAsDataURL(file)
+            if(file){
+                fileReader.readAsDataURL(file)
+            }else{
+                resolve("dist/img/boxed-bg.jpg")
+            }
         })
     }
 
@@ -52,11 +52,13 @@ class UserController{
         [...this._formEl.elements].forEach(function(field){
             if(field.name == "gender"){
                 if(field.checked) user[field.name] = field.value
+            } else if(field.name == "admin"){
+                user[field.name] = field.checked
             }else{
                 user[field.name] = field.value
             }
         })
-    
+
         return new User(user.name,
             user.gender, 
             user.birth, 
@@ -71,10 +73,10 @@ class UserController{
     addLine(dataUser){
         this._table.innerHTML += `
         <tr>
-            <td><img src="${dataUser.photo}" alt="User Image" class="img-circle img-sm"></td>
+            <td><img src="${dataUser._photo}" alt="User Image" class="img-circle img-sm"></td>
             <td>${dataUser._name}</td>
             <td>${dataUser._email}</td>
-            <td>${dataUser._admin}</td>
+            <td>${(dataUser._admin) ? "Sim" : "Não"}</td>
             <td>${dataUser._birth}</td>
             <td>
                 <button type="button" class="btn btn-primary btn-xs btn-flat">Editar</button>
