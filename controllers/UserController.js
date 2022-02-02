@@ -9,17 +9,25 @@ class UserController{
     onSubmit(){
         let btn = document.querySelector("[type=submit]")
         this._formEl.addEventListener("submit", e=>{
+            document.querySelectorAll(".form-group").forEach(function(parentField){
+                console.log(parentField)
+                parentField.classList.remove("has-error")
+            })
+
             btn.disabled = true
             e.preventDefault()
             let user = this.getValues()
+
+            if(!user) return false
+
             this.getPhoto().then(content =>{
                 user.photo = content
                 this.addLine(user)
                 this._formEl.reset()
-                btn.disabled = false
             }, e => {
-                console.error("erro")
+                console.log("e")
             })
+            btn.disabled = false
         })
     }
 
@@ -52,8 +60,15 @@ class UserController{
     }
 
     getValues(){
-        let user = {};
+        let user = {}
+        let isValid = true;
         [...this._formEl.elements].forEach(function(field){
+
+            if(["name", "password", "email"].indexOf(field.name) > -1 && !field.value){
+                field.parentElement.classList.add("has-error")
+                isValid = false
+            }
+
             if(field.name == "gender"){
                 if(field.checked) user[field.name] = field.value
             } else if(field.name == "admin"){
@@ -62,6 +77,10 @@ class UserController{
                 user[field.name] = field.value
             }
         })
+
+        if(!isValid){
+            return false
+        }
 
         return new User(user.name,
             user.gender, 
@@ -76,7 +95,7 @@ class UserController{
 
     addLine(dataUser){
         this._table.innerHTML += `
-        <tr>
+        <tr data-user=${JSON.stringify(dataUser)}>
             <td><img src="${dataUser.photo}" alt="User Image" class="img-circle img-sm"></td>
             <td>${dataUser.name}</td>
             <td>${dataUser.email}</td>
@@ -88,5 +107,23 @@ class UserController{
             </td>
         </tr>
         `
+
+        this.updateCount()
+    }
+
+    updateCount(){
+        let numberUsers = 0
+        let numberAdmin = 0;
+        [...this._table.children].forEach(tr=>{
+            numberUsers++
+            let user = JSON.parse(tr.dataset.user)
+
+            if(user._admin){
+                numberAdmin++
+            }
+
+            document.querySelector("#number-users").innerHTML = numberUsers
+            document.querySelector("#number-admin").innerHTML = numberAdmin
+        })
     }
 }

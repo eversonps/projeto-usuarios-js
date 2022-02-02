@@ -15,6 +15,10 @@ class User{
         return this._date
     }
 
+    set date(date){
+        this._date = date
+    }
+
     get name(){
         return this._name
     }
