@@ -29,6 +29,7 @@ class UserController{
             }, e => {
                 console.log("e")
             })
+
             btn.disabled = false
         })
     }
@@ -41,7 +42,7 @@ class UserController{
 
         this._formUpdateEl.addEventListener("submit", (e)=>{
             e.preventDefault()
-            let btn = document.querySelector("[type=submit]")
+            let btn = this._formUpdateEl.querySelector("[type=submit]")
             btn.disabled = true
 
             let user = this.getValues(this._formUpdateEl)
@@ -49,10 +50,9 @@ class UserController{
             let index = this._formUpdateEl.dataset.trIndex
 
             let tr = this._table.rows[index]
-            console.log(tr)
+            tr.dataset.user = JSON.stringify(user)
             
             tr.innerHTML = `
-            <tr data-user=${JSON.stringify(user)}>
                 <td><img src="${user.photo}" alt="User Image" class="img-circle img-sm"></td>
                 <td>${user.name}</td>
                 <td>${user.email}</td>
@@ -62,9 +62,8 @@ class UserController{
                     <button type="button" class="btn btn-primary btn-edit btn-xs btn-flat">Editar</button>
                     <button type="button" class="btn btn-danger btn-xs btn-flat">Excluir</button>
                 </td>
-            </tr>
             `
-
+            console.log(tr)
             this.addEventsTr()
             this.updateCount()
         })
@@ -74,8 +73,8 @@ class UserController{
         let btnsEdit = document.querySelectorAll(".btn-edit")  
         btnsEdit.forEach((btn)=>{
             btn.addEventListener("click", ()=>{
+                this._formUpdateEl.querySelector("[type=submit]").disabled = false
                 this.showPanelUpdate()
-                console.log("entrou!")
                 var tr = btn.parentElement.parentElement
                 let user = JSON.parse(tr.dataset.user)
 
@@ -203,6 +202,7 @@ class UserController{
         let numberAdmin = 0;
         [...this._table.children].forEach(tr=>{
             numberUsers++
+
             let user = JSON.parse(tr.dataset.user)
 
             if(user._admin){
