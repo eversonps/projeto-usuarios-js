@@ -25,7 +25,7 @@ class UserController{
 
             this.getPhoto(this._formEl).then(content =>{
                 user.photo = content
-                this.insert(user)
+                user.save()
                 this.addLine(user)
                 this._formEl.reset()
             }, e => {
@@ -68,6 +68,10 @@ class UserController{
                     result._photo = content
                 }
 
+                let userObj = new User()
+                userObj.loadFromJSON(result)
+                userObj.save()
+
                 tr.dataset.user = JSON.stringify(result)
 
                 this._formUpdateEl.reset()
@@ -102,8 +106,12 @@ class UserController{
             btn.addEventListener("click", ()=>{
                 var tr = btn.parentElement.parentElement
                 if(confirm("Você deseja mesmo excluir este usuário?")){ 
+                    let user = new User()
+                    user.loadFromJSON(JSON.parse(tr.dataset.user))
+                    user.remove()
                     tr.remove()
                     this.updateCount()
+                    console.log(tr)
                 }
             })
         })
@@ -206,18 +214,8 @@ class UserController{
         )
     }
 
-    getUsersStorage(){
-        let users = []
-
-        if(sessionStorage.getItem("users")){
-            users = JSON.parse(sessionStorage.getItem("users"))
-        }
-
-        return users
-    }
-
     selectAll(){
-        let users = this.getUsersStorage()
+        let users = User.getUsersStorage()
 
         users.forEach(dataUser=>{
             let user = new User()
@@ -225,12 +223,6 @@ class UserController{
             console.log(user)
             this.addLine(user)
         })
-    }
-
-    insert(user){
-        let users = this.getUsersStorage()
-        users.push(user)
-        sessionStorage.setItem("users", JSON.stringify(users))
     }
 
     addLine(dataUser){
@@ -267,7 +259,7 @@ class UserController{
         let numberAdmin = 0;
         [...this._table.children].forEach(tr=>{
             numberUsers++
-
+            console.log(tr)
             let user = JSON.parse(tr.dataset.user)
 
             if(user._admin){
