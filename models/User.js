@@ -54,4 +54,17 @@ class User{
     get admin(){
         return this._admin
     }
+
+    loadFromJSON(dataUser){
+        for (let name in dataUser){
+            switch(name){
+                case "_date":
+                    console.log("entrou")
+                    this[name] = new Date(dataUser[name])
+                    break
+                default:
+                    this[name] = dataUser[name]
+            }
+        }
+    }
 }

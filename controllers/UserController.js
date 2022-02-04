@@ -4,6 +4,7 @@ class UserController{
         this._table = document.getElementById(tableId)
         this._formUpdateEl = document.getElementById(formUpdateId) 
 
+        this.selectAll()
         this.onSubmit()
         this.onEdit()
         this.showPanelCreate()
@@ -24,6 +25,7 @@ class UserController{
 
             this.getPhoto(this._formEl).then(content =>{
                 user.photo = content
+                this.insert(user)
                 this.addLine(user)
                 this._formEl.reset()
             }, e => {
@@ -202,6 +204,33 @@ class UserController{
             user.photo, 
             user.admin
         )
+    }
+
+    getUsersStorage(){
+        let users = []
+
+        if(sessionStorage.getItem("users")){
+            users = JSON.parse(sessionStorage.getItem("users"))
+        }
+
+        return users
+    }
+
+    selectAll(){
+        let users = this.getUsersStorage()
+
+        users.forEach(dataUser=>{
+            let user = new User()
+            user.loadFromJSON(dataUser)
+            console.log(user)
+            this.addLine(user)
+        })
+    }
+
+    insert(user){
+        let users = this.getUsersStorage()
+        users.push(user)
+        sessionStorage.setItem("users", JSON.stringify(users))
     }
 
     addLine(dataUser){
