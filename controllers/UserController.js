@@ -78,7 +78,7 @@ class UserController{
                     <td>${Utils.dateFormat(result._date)}</td>
                     <td>
                         <button type="button" class="btn btn-primary btn-edit btn-xs btn-flat">Editar</button>
-                        <button type="button" class="btn btn-danger btn-xs btn-flat">Excluir</button>
+                        <button type="button" class="btn btn-danger btn-delete btn-xs btn-flat">Excluir</button>
                     </td>
                 `
                 this.addEventsTr()
@@ -93,7 +93,19 @@ class UserController{
     }
 
     addEventsTr(){
-        let btnsEdit = document.querySelectorAll(".btn-edit")  
+        let btnsEdit = document.querySelectorAll(".btn-edit") 
+        let btnsDelete = document.querySelectorAll(".btn-delete")
+
+        btnsDelete.forEach((btn)=>{
+            btn.addEventListener("click", ()=>{
+                var tr = btn.parentElement.parentElement
+                if(confirm("Você deseja mesmo excluir este usuário?")){ 
+                    tr.remove()
+                    this.updateCount()
+                }
+            })
+        })
+ 
         btnsEdit.forEach((btn)=>{
             btn.addEventListener("click", ()=>{
                 this._formUpdateEl.querySelector("[type=submit]").disabled = false
@@ -202,7 +214,7 @@ class UserController{
             <td>${Utils.dateFormat(dataUser.date)}</td>
             <td>
                 <button type="button" class="btn btn-primary btn-edit btn-xs btn-flat">Editar</button>
-                <button type="button" class="btn btn-danger btn-xs btn-flat">Excluir</button>
+                <button type="button" class="btn btn-danger btn-delete btn-xs btn-flat">Excluir</button>
             </td>
         </tr>
         `
