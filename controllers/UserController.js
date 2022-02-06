@@ -24,7 +24,7 @@ class UserController{
             btn.disabled = true
 
             this.getPhoto(this._formEl).then(content =>{
-                user.photo = content
+                user._photo = content
                 user.save()
                 this.addLine(user)
                 this._formEl.reset()
@@ -37,7 +37,7 @@ class UserController{
     }
 
     onEdit(){
-        document.querySelector(".btn-cancel").addEventListener("click", e=>{
+        this._formUpdateEl.querySelector(".btn-cancel").addEventListener("click", e=>{
             e.preventDefault()
             this.showPanelCreate()
         })
@@ -56,8 +56,6 @@ class UserController{
             let userOld = JSON.parse(tr.dataset.user)
 
             let result = Object.assign({}, userOld, user)
-
-            tr.dataset.user = JSON.stringify(result)
         
             this.showPanelCreate()
 
@@ -72,55 +70,52 @@ class UserController{
                 userObj.loadFromJSON(result)
                 userObj.save()
 
-                tr.dataset.user = JSON.stringify(result)
+                tr = this.getTr(userObj, tr)
 
                 this._formUpdateEl.reset()
 
-                tr.innerHTML = `
-                    <td><img src="${result._photo}" alt="User Image" class="img-circle img-sm"></td>
-                    <td>${result._name}</td>
-                    <td>${result._email}</td>
-                    <td>${(result._admin) ? "Sim" : "Não"}</td>
-                    <td>${Utils.dateFormat(result._date)}</td>
-                    <td>
-                        <button type="button" class="btn btn-primary btn-edit btn-xs btn-flat">Editar</button>
-                        <button type="button" class="btn btn-danger btn-delete btn-xs btn-flat">Excluir</button>
-                    </td>
-                `
-                this.addEventsTr()
                 this.updateCount()
             }, e => {
                 console.log("e")
-            })
-
-
-            
+            })       
         })
     }
 
-    addEventsTr(){
-        let btnsEdit = document.querySelectorAll(".btn-edit") 
-        let btnsDelete = document.querySelectorAll(".btn-delete")
+    getTr(dataUser, tr = null){
+        if(tr === null) tr = document.createElement("tr")
 
-        btnsDelete.forEach((btn)=>{
-            btn.addEventListener("click", ()=>{
-                var tr = btn.parentElement.parentElement
-                if(confirm("Você deseja mesmo excluir este usuário?")){ 
-                    let user = new User()
-                    user.loadFromJSON(JSON.parse(tr.dataset.user))
-                    user.remove()
-                    tr.remove()
-                    this.updateCount()
-                    console.log(tr)
-                }
-            })
+        tr.dataset.user = JSON.stringify(dataUser)
+
+        tr.innerHTML = `  
+            <td><img src="${dataUser.photo}" alt="User Image" class="img-circle img-sm"></td>
+            <td>${dataUser.name}</td>
+            <td>${dataUser.email}</td>
+            <td>${(dataUser.admin) ? "Sim" : "Não"}</td>
+            <td>${Utils.dateFormat(dataUser.date)}</td>
+            <td>
+                <button type="button" class="btn btn-primary btn-edit btn-xs btn-flat">Editar</button>
+                <button type="button" class="btn btn-danger btn-delete btn-xs btn-flat">Excluir</button>
+            </td>
+        `
+        this.addEventsTr(tr)
+        return tr
+    }
+
+    addEventsTr(tr){
+        tr.querySelector(".btn-delete").addEventListener("click", ()=>{
+            if(confirm("Você deseja mesmo excluir este usuário?")){ 
+                let user = new User()
+                user.loadFromJSON(JSON.parse(tr.dataset.user))
+                user.remove()
+                tr.remove()
+                this.updateCount()
+            }
         })
- 
-        btnsEdit.forEach((btn)=>{
-            btn.addEventListener("click", ()=>{
-                this._formUpdateEl.querySelector("[type=submit]").disabled = false
+
+
+        tr.querySelector(".btn-edit").addEventListener("click", ()=>{
+            this._formUpdateEl.querySelector("[type=submit]").disabled = false
                 this.showPanelUpdate()
-                var tr = btn.parentElement.parentElement
                 let user = JSON.parse(tr.dataset.user)
 
                 this._formUpdateEl.dataset.trIndex = tr.sectionRowIndex
@@ -148,7 +143,6 @@ class UserController{
 
                 this._formUpdateEl.querySelector(".photo").src = user._photo
                 this.updateCount()
-            })
         })
     }
 
@@ -163,6 +157,7 @@ class UserController{
             })
 
             let file = imagem[0].files[0]
+            console.log(file)
     
             fileReader.onload = ()=>{
                 resolve(fileReader.result)
@@ -220,27 +215,13 @@ class UserController{
         users.forEach(dataUser=>{
             let user = new User()
             user.loadFromJSON(dataUser)
-            console.log(user)
             this.addLine(user)
         })
     }
 
     addLine(dataUser){
-        this._table.innerHTML += `
-        <tr data-user=${JSON.stringify(dataUser)}>
-            <td><img src="${dataUser.photo}" alt="User Image" class="img-circle img-sm"></td>
-            <td>${dataUser.name}</td>
-            <td>${dataUser.email}</td>
-            <td>${(dataUser.admin) ? "Sim" : "Não"}</td>
-            <td>${Utils.dateFormat(dataUser.date)}</td>
-            <td>
-                <button type="button" class="btn btn-primary btn-edit btn-xs btn-flat">Editar</button>
-                <button type="button" class="btn btn-danger btn-delete btn-xs btn-flat">Excluir</button>
-            </td>
-        </tr>
-        `
-
-        this.addEventsTr()
+        let tr = this.getTr(dataUser)
+        this._table.appendChild(tr)
         this.updateCount()
     }
 
@@ -259,15 +240,14 @@ class UserController{
         let numberAdmin = 0;
         [...this._table.children].forEach(tr=>{
             numberUsers++
-            console.log(tr)
             let user = JSON.parse(tr.dataset.user)
 
             if(user._admin){
                 numberAdmin++
             }
-
-            document.querySelector("#number-users").innerHTML = numberUsers
-            document.querySelector("#number-admin").innerHTML = numberAdmin
         })
+
+        document.querySelector("#number-users").innerHTML = numberUsers
+        document.querySelector("#number-admin").innerHTML = numberAdmin
     }
 }
